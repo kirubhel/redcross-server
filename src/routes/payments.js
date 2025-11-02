@@ -140,8 +140,11 @@ router.post('/donation', async (req, res) => {
     // Frontend URL - adjust port if your frontend runs on different port
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     
-    // Call payment gateway service
-    const paymentGatewayUrl = process.env.PAYMENT_GATEWAY_URL || 'http://localhost:8080';
+    // Payment Gateway URL - use production URL if deployed, otherwise localhost
+    const paymentGatewayUrl = process.env.PAYMENT_GATEWAY_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://redcross-server-ckgo.vercel.app' 
+        : 'http://localhost:8080');
     const response = await fetch(`${paymentGatewayUrl}/chapa/donation`, {
       method: 'POST',
       headers: {
@@ -189,8 +192,11 @@ router.post('/membership', auth, async (req, res) => {
     const PROCESSING_FEE = 2;
     const totalAmount = parseFloat(amount) + PROCESSING_FEE;
     
-    // Call payment gateway service
-    const paymentGatewayUrl = process.env.PAYMENT_GATEWAY_URL || 'http://localhost:8080';
+    // Payment Gateway URL - use production URL if deployed, otherwise localhost
+    const paymentGatewayUrl = process.env.PAYMENT_GATEWAY_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://redcross-server-ckgo.vercel.app' 
+        : 'http://localhost:8080');
     const user = await User.findById(req.user.sub);
     
     // Ensure title is max 16 characters for Chapa API

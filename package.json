@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "node --watch src/app.js",
     "start": "node src/app.js",
-    "seed:admin": "node src/scripts/seedAdmin.js"
+    "seed:admin": "node src/scripts/seedAdmin.js",
+    "seed:atlas": "node seedMongoAtlas.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
