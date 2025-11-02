@@ -10,7 +10,7 @@ const MONGO_URL = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/ercs_demo'
 async function seedAdmin() {
   try {
     await mongoose.connect(MONGO_URL)
-    console.log('Connected to MongoDB')
+    console.log(`✅ Connected to MongoDB: ${MONGO_URL.includes('mongodb.net') ? 'Atlas (Cloud)' : 'Local'}`)
 
     // Default admin credentials
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@ercs.org'
