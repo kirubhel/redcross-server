@@ -67,13 +67,25 @@ app.use('/api/volunteer-matching', volunteerMatchingRouter);
 app.use('/api/membership-types', membershipTypesRouter);
 
 const PORT = process.env.PORT || 4000;
+// MongoDB connection - prioritize environment variable (for production/cloud)
+// Fall back to localhost only for local development
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/ercs_demo';
 
 async function start() {
-  await mongoose.connect(MONGO_URL);
-  app.listen(PORT, () => {
-    console.log(`API listening on http://localhost:${PORT}`);
-  });
+  try {
+    await mongoose.connect(MONGO_URL);
+    console.log(`✅ Connected to MongoDB: ${MONGO_URL.includes('mongodb.net') ? 'Atlas (Cloud)' : 'Local'}`);
+    app.listen(PORT, () => {
+      console.log(`✅ API listening on http://localhost:${PORT}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to connect to MongoDB:', error.message);
+    if (MONGO_URL.includes('mongodb.net')) {
+      console.error('💡 Tip: Check your MongoDB Atlas connection string and network access settings');
+    }
+    process.exit(1);
+  }
 }
 
 start().catch((err) => {
