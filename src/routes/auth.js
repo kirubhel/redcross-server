@@ -10,8 +10,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 router.post('/register', async (req, res) => {
   const { name, email, password, role, phone, membershipTypeId, ...otherData } = req.body;
   try {
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ error: 'Email already in use' });
+    // Check if email already exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) return res.status(400).json({ error: 'Email already in use' });
+    
+    // Check if phone number already exists (for members, phone must be unique)
+    if (role === 'member' && phone) {
+      const existingPhone = await User.findOne({ phone });
+      if (existingPhone) {
+        return res.status(400).json({ error: 'Phone number already registered. Please use a different phone number.' });
+      }
+    }
     const passwordHash = await bcrypt.hash(password, 10);
     
     let membershipExpiry = null;

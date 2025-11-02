@@ -137,8 +137,11 @@ router.post('/donation', async (req, res) => {
     // Ensure title is max 16 characters for Chapa API
     const paymentTitle = (title || 'ERCS Donation').substring(0, 16);
     
-    // Frontend URL - adjust port if your frontend runs on different port
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    // Frontend URL - use production URL if deployed, otherwise localhost
+    const frontendUrl = process.env.FRONTEND_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://redcross-cleint.vercel.app' 
+        : 'http://localhost:5173');
     
     // Payment Gateway URL - use production URL if deployed, otherwise localhost
     const paymentGatewayUrl = process.env.PAYMENT_GATEWAY_URL || 
