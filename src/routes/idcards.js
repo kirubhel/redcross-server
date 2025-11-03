@@ -120,6 +120,62 @@ router.post('/member', auth, async (req, res) => {
   }
 });
 
+// Generate ID card for volunteer (self-service)
+router.post('/volunteer', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.sub);
+    if (user.role !== 'volunteer') {
+      return res.status(403).json({ error: 'Volunteers only' });
+    }
+    
+    // Check if user already has an active ID card
+    const existingCard = await IDCard.findOne({ user: req.user.sub, status: 'active' });
+    if (existingCard) {
+      return res.status(400).json({ error: 'You already have an active ID card' });
+    }
+    
+    // Check if user has a photo
+    if (!req.body.photo && !user.profile?.photo) {
+      return res.status(400).json({ error: 'Photo is required to generate ID card' });
+    }
+    
+    // Update user profile with photo if provided
+    if (req.body.photo && !user.profile?.photo) {
+      user.profile = user.profile || {};
+      user.profile.photo = req.body.photo;
+      await user.save();
+    }
+    
+    // Generate card number
+    const cardNumber = `ERC${user.role.toUpperCase().substring(0, 2)}${Date.now().toString().slice(-8)}${Math.random().toString(36).substring(2, 4).toUpperCase()}`;
+    
+    // Generate QR code data
+    const qrData = JSON.stringify({
+      cardNumber,
+      userId: user._id,
+      name: user.name,
+      role: user.role,
+      verified: user.verified
+    });
+    
+    // Default expiry: 1 year for volunteers
+    const expiryDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    
+    const idCard = await IDCard.create({
+      user: req.user.sub,
+      cardNumber,
+      type: user.role,
+      qrCode: qrData,
+      photo: user.profile?.photo || req.body.photo,
+      expiryDate: expiryDate
+    });
+    
+    res.json({ item: idCard });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to generate ID card', details: e.message });
+  }
+});
+
 // Get my ID card
 router.get('/my', auth, async (req, res) => {
   try {
