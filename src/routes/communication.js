@@ -15,7 +15,7 @@ const smtpConfig = {
   secure: true, // true for 465, false for other ports
   auth: {
     user: process.env.SMTP_USERNAME || 'kirub.hel@gmail.com',
-    pass: process.env.SMTP_PASSWORD || 'dacc uhlb etak tpoo'
+    pass: process.env.SMTP_PASSWORD || 'dqys bnjk hhny khbk'
   }
 };
 
